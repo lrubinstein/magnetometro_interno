@@ -1,0 +1,75 @@
+#!/usr/bin/python
+import serial
+import time
+import serial.tools.list_ports
+import subprocess
+comlist = serial.tools.list_ports.comports()
+connected = []
+#print(len(comlist)) 
+for element in comlist:
+    connected.append(element.device)
+#print("Connected COM ports: " + str(connected))
+#vec=['null','null','null','null']
+#son 13 variables contando los 3 BMPs
+#TimeStamp,Bx,By,Bz,modB
+vec=[0,0,0,0,0] 
+vec2=[]
+auxvar=[]
+tstamp=int(time.time())
+#print(str(connected[0]))
+for puerto in connected:
+	if "USB" in puerto:
+		ser = serial.Serial(puerto,9600)
+		#ser.reset_input_buffer()
+		#ser.flush()
+#		print(puerto)
+#		print('esperando...')
+		time.sleep(2)  #por algun motivo si espera menos de 2 seg la lectura no me funciona
+		ser.write('i')
+#		print ser.readline()
+#		vec2.append(ser.readline().strip())
+		exito = False
+		while not exito:
+			try:
+				vec2.append(ser.readline().strip())
+				exito = True
+#				print("id ok")
+				ser.write('d')
+				break
+			except: 
+#				ser.reset_input_buffer()
+#				ser.reset_output_buffer()
+				ser.flushInput()
+				ser.flushOutput()
+				exito = False
+#				print("id error")
+				ser.write('i')
+				pass
+
+		if 'Gy271' in vec2[len(vec2)-1]:
+			#vec[2] = ser.readline().strip().split(",")
+			exito = False
+			while not exito:
+				try:
+					auxvar = ser.readline().strip().split(",")
+					exito = True
+					vec[0]=auxvar[0]
+					vec[1]=auxvar[1]
+					vec[2]=auxvar[2]
+					vec[3]=auxvar[3]																				
+					break
+				except: 
+#					ser.reset_output_buffer()
+#					ser.reset_input_buffer()
+                                        ser.flushInput()
+                                        ser.flushOutput()
+#					print("mag error")
+					exito = False
+					ser.write('d')
+					pass
+#print "%d,%.6f,%.6f,%.3f,%.3f,%.3f,%.3f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f" % (vec[0],vec[1],vec[2],vec[3],vec[4],vec[5],vec[6],vec[7],vec[8],vec[9],vec[10],vec[11],vec[12])
+print "%s,%s,%s,%s,%s" % (tstamp,vec[0],vec[1],vec[2],vec[3])
+#print vec[0],vec[1],vec[2],vec[3],vec[4],vec[5],vec[6],vec[7],vec[8],vec[9],vec[10],vec[11],vec[12]
+#print vec2
+
+

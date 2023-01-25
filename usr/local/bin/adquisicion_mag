@@ -1,0 +1,12 @@
+#!/bin/bash
+
+FILE=$1/$(date +%Y%m%d-%Hhs)-MAG.dat
+echo $FILE
+if [ -f $FILE ]; then
+
+   /usr/local/bin/datos_mag >> $1/$(date +%Y%m%d-%Hhs)-MAG.dat
+else
+	echo '#Bx(uT),By(uT),Bz(uT),ModuloB(uT)' >> $1/$(date +%Y%m%d-%Hhs)-MAG.dat
+
+   /usr/local/bin/datos_mag >> $1/$(date +%Y%m%d-%Hhs)-MAG.dat
+fi
